@@ -64,9 +64,9 @@ async def create_simple_report(
         total_projects + 2, 0,
         f'Итого проектов: {total_projects}', cell_format
     )
-    
+
     worksheet.set_column('A:C', 30)
-    
+
     workbook.close()
     output.seek(0)
     await client.upload_file(upload_url, output.read())
