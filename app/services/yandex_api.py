@@ -2,7 +2,6 @@ import io
 from datetime import UTC, datetime, timedelta
 
 import xlsxwriter
-from fastapi import HTTPException, status
 
 from app.core.config import settings
 from app.core.constants import (BORDER_SIZE, COLUMN_WIDTH, SECONDS_IN_HOUR,
@@ -33,10 +32,8 @@ async def create_simple_report(
         title=safe_filename, folder=folder
     )
 
-    output = io.BytesIO()
     excel_data = b''
-
-    try:
+    with io.BytesIO() as output:
         with xlsxwriter.Workbook(output) as workbook:
             worksheet = workbook.add_worksheet('Отчет')
 
@@ -75,11 +72,6 @@ async def create_simple_report(
 
             worksheet.set_column('A:C', COLUMN_WIDTH)
         excel_data = output.getvalue()
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
 
     await client.upload_file(upload_url, excel_data)
     return await client.publish_file(file_path)
